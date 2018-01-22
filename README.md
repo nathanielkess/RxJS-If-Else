@@ -1,6 +1,6 @@
 # RxJS-If-Else
 
-`if/else` statements are a staple for handling conditional actions. It's natural for most developers to reach for the `if/else` statement at the point when a decision needs to be made in code. In the reactive programming paradigm (eg with RxJS) this conditional statements is mysteriously unavailable. How can you code without it? 
+`if/else` statements are a staple for handling conditional actions. It's natural for most developers to reach for the `if/else` statement at the point when a decision needs to be made in code. In the reactive programming paradigm (eg with RxJS) this conditional statements are mysteriously unavailable. How can you code without it? 
 
 The trick, more streams. But more on that later, first let's walk through an example.  Let's say we're writing a transit app. We need to write the piece that determines which streetcar will come sooner. I'll start with an example in RxJS that walks a thin line between reactive functional programming and imperative programming (the kind full of `if/else` statements). Then we'll clean it up with the "more streams" trick and find out how to do away with if/else statements and why RxJS doesn't offer a dedicated if/else operator (as of RxJS 5) in the first place.
 
