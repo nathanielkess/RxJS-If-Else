@@ -2,7 +2,7 @@
 
 `if/else` statements are a staple for handling conditional actions. It's natural for most developers to reach for the `if/else` statement at the point when a decision needs to be made in code. In the reactive programming paradigm (eg with RxJS) this conditional statement is mysteriously unavailable. How can you code without it? 
 
-The trick, more streams. But more on that later, first let's walk through an example.  Let's say we're writing a transit app. We need to write the piece that determines which streetcar will come sooner. I'll start with an example in RxJS that walks a thin line between reactive functional programming and imperative programming (the kind full of `if/else` statements). Then we'll clean it up with the "more streams" trick and find out how to do away with if/else statements and why RxJS doesn't offer a dedicated if/else operator (as of RxJS 5) in the first place.
+The trick is more streams. What's a stream? More on that later. First let's walk through an example of (...).  Let's say we're writing a transit app. We need to write a piece of code that determines which streetcar will arrive sooner. I'll start with an example in RxJS that walks a thin line between reactive functional programming and imperative programming (the kind full of `if/else` statements that you're probably used to seeing). Then we'll clean it up with the "more streams" trick and find out how to do away with if/else statements and why RxJS (as of RxJS 5) doesn't offer a dedicated if/else operator in the first place.
 
 [Imperative example]
 
@@ -35,7 +35,7 @@ if (isSomething)  {
 }
 ```
 
-How can we branch to the else portion of this condition with the filter operator?  You cannot, but it's okay, instead you can break the statement into multiple streams. One for each branch of the condition. Then compose them together with a `merge` operator.
+We can't branch to the else portion of this condition with the filter operator, but it's okay. Instead, you can break the statement into multiple streams, one for each branch of the condition then compose them together with a `merge` operator.
 
 ```javascript
 const somethings$ = source$
@@ -53,7 +53,7 @@ const onlyTheRightThings$ = somethings$
 ```
    
 
-`if` statements, however, don't end there, there's also the `else if` statement. 
+What about the `else if` statement?
 
 ```javascript
 if (isSomething)  {
@@ -65,7 +65,7 @@ if (isSomething)  {
 }
 ```
 
-This essential translates to more branches. By following that same approach as before in the RxJS way, we can break each branch into it's own stream and merge them all together at the end. 
+This essentially translates to more branches. By following the RxJS approach, we can break each branch into its own stream and merge them all together at the end. 
 
 ```javascript
 const somethings$ = source$
@@ -86,6 +86,8 @@ const onlyTheRightThings$ = somethings$
     betterThings$,
     defaultThings$,
   )
+  
+  // I think you need a correctThings variable
   .do(correctThings);
 ```
 
