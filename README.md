@@ -29,8 +29,8 @@ Leveraging this train API service, let's write out a stream that subscribes to b
 
 ```javascript
 const nextTrainButtonClicks$ = Rx.Observable
-	.fromEvent(button, 'click')
-	.share();
+  .fromEvent(button, 'click')
+  .share();
 ```
 
 ```javascript
