@@ -1,16 +1,16 @@
 # RxJS-If-Else
 
-`if/else` statements are a staple for handling conditional actions. It's natural for most developers to reach for the `if/else` statement at the point when a decision needs to be made in code. In the reactive programming paradigm (eg with RxJS) this conditional statements is mysteriously unavailable. How can you code without it? 
+`if/else` statements are a staple for handling conditional actions. It's natural for most developers to reach for the `if/else` statement at the point when a decision needs to be made in code. In the reactive programming paradigm (eg with RxJS) this conditional statement is mysteriously unavailable. How can you code without it? 
 
-The trick, more streams. But more on that later, first let's walk through an example.  Let's say we're writing a transit app. Today we're writing in a new feature that checks if the next street cars is pet friendly. I'll start with an example in RxJS that walks a thin line between reactive functional programming and imperative programming (the kind full of `if/else` statements). Then we'll clean it up with the "more streams" trick and find out how to do away with if/else statements and why RxJS doesn't offer a dedicated if/else operator (as of RxJS 5) in the first place.
+The trick, more streams. But more on that later, first let's walk through an example.  Let's say we're writing a transit app. The app calls for a new feature that checks if the next street cars is pet friendly. I'll start with an example in RxJS that walks a thin line between reactive functional programming and imperative programming (the kind full of `if/else` statements). Then we'll clean it up with the "more streams" trick and find out how to do away with if/else statements and why RxJS doesn't offer a dedicated if/else operator (as of RxJS 5) in the first place.
 
 ### New feature: Is this train pet friendly?
-As a user of the app, I need to know if the next train is pet friendly.  When I click the "Get Next Train" button, a message with details include pet info should be displayed.
+As a user of the app, I need to know if the next train is pet friendly.  When I click the "Get Next Train" button, a message with details including pet info should be displayed.
 
 
 
 #### TrainApiService
-We'll write the feature against this TrainApiService class that has 2 methods. The first is `getNextTrain()` which returns train details (name, id and remaining minuets until arrival).  And the second being `isPetFriendly()`, which takes a train id and return true or false.
+We'll write the feature against this existing TrainApiService class that has two methods. The first is `getNextTrain()` which returns train details (name, id and remaining minutes until arrival).  And the second being `isPetFriendly()`, which takes a train id and returns true or false.
 
 ```typescript
 interface iTrainDetails {
@@ -53,19 +53,19 @@ nextTrainButtonClicks$
 It's not terribly difficult to see what's going on here:
 
 - each click is emitted in a stream
-- each click is mapped to train details of the nexts train (`.map(trainApiServie.getNextTrian)`)
+- each click is mapped to train details of the next trains (`.map(trainApiServie.getNextTrian)`)
 - the next `.map()` goes into a bit of conditional logic to check if the next train is pet friendly with `if (trainApiService.isPetFriendly(train.id))`.  Depending on the condition, a message is returned with the necessary pet information.
-- the `.do(ui.showTrainDetails)` takes the previouse message and updates the ui in the app. 
+- the `.do(ui.showTrainDetails)` takes the previous message and updates the UI in the app. 
 
 What's interesting here is that this stream has a branching condition in the middle: 
 
 `if (trainApiService.isPetFriendly(train.id))`
 
-But, regardless of the conditional outcome, it ultimately ends up displaying a message : 
+But, regardless of the conditional outcome, it ultimately ends up displaying a message: 
 
 `.do(ui.showTrainDetails)`
 
-What if, instead of only displaying a final message.  The outcome of the condition would _also_ have to determin if a "pet freindly icon" was displayed in the ui:
+What if instead of only displaying a final message, the outcome of the condition would _also_ have to determine if a "pet freindly icon" was displayed in the UI:
 `ui.showPetIcon()`. This means the stream of clicks would have to end with two different outcomes. That might look something like this:
 
 ```javascript
@@ -94,12 +94,12 @@ nextTrainButtonClicks$
   .subscribe()
 
 ```
-At this point it's getting tough to follow what's going on. Where using a conditional statement to build up the train details message. And _another_ conditional statement inside the final `do()` operator to update the ui with the pet icon.  There's also a few new variable we have to keep track of in order to achivie the branching logic:
+At this point it's getting tough to follow what's going on. We are using a conditional statement to build up the train details message. And _another_ conditional statement inside the final `do()` operator to update the UI with the pet icon.  There's also a few new variables we have to keep track of in order to achieve the branching logic:
 
 - `let messageDetials;`
 - `const isPetFriendly = trainApiService.isPetFriendly(train.id);`
 
-There's a lot to keep in mind while writing out a stream like this. The big take-away here is that you shouldn't have to.  Rx streams can be very readable if you approach them differently. 
+That's a lot to keep in mind when writing out a stream like this. The big take-away here is that you shouldn't have to.  Rx streams can be very readable if you approach them differently. 
 
 Let's dig into what makes up a condition for a moment and then come back to our app. 
 
@@ -162,7 +162,7 @@ if (isSomething)  {
 }
 ```
 
-This essential translates to more branches. By following that same approach as before in the RxJS way, we can break each branch into it's own stream and merge them all together at the end. 
+This essentially translates into more branches. By following that same approach as before in the RxJS way, we can break each branch into it's own stream and merge them all together at the end. 
 
 ```javascript
 const somethings$ = source$
@@ -186,7 +186,7 @@ const onlyTheRightThings$ = somethings$
   .do(correctThings);
 ```
 
-The beauty here is that the final stream is just a composition of the things the developer is after. Compared to the imperative version (`if/else`), this one reads like a natural conversation. I don't need to bother considering the other streams. I can just zero in on the what the final steam is composed of and assume the goal based on the verbiage.
+The beauty here is that the final stream is just a composition of the things the developer is after. Compared to the imperative version (`if/else`), this one reads like a natural conversation. I don't need to bother considering the other streams. I can just zero in on what the final stream is composed of and assume the goal based on the verbiage.
 
 "I want `somethings$`, `betterThings$` and `defaultThings$`" 
 
@@ -200,9 +200,9 @@ Before you can read into the action:
 
 ### Merge
 
-Now that we're armed with this pattern, refactoring out that conditional statements from our transit app should be a snap. Let's convert each branch of our condition and then compose them together. 
+Now that we're armed with this pattern, refactoring out the conditional statements from our transit app should be a snap. Let's convert each branch of our conditions and then compose them together. 
 
-We'll create a source stream of clicks that map to "next-trains". Then we'll build a branch for pet friendly trains and one for non pet friendly trains.  Lastly we'll merge them together and call it a day. 
+We'll create a source stream of clicks that map to "next-trains". Then we'll build a branch for pet friendly trains and one for non pet friendly trains.  Lastly, we'll merge them together and call it a day. 
 
 
 ```javascript
