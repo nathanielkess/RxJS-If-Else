@@ -38,13 +38,13 @@ const nextTrainButtonClicks$ = Rx.Observable
 nextTrainButtonClicks$
   .map(trainApiServie.getNextTrian)
   .map((train) => {
-  	let messageDetials;
-  	if (trainApiService.isPetFriendly(train.id)) {
-  	  messageDetails = `${train.name} is coming in ${train.minuets} minuet(s). This train is pet friendly.
-  	} else {
-  	  messageDetails = `${train.name} is coming in ${train.minuets} minuet(s). This train is not pet friendly.
-  	}
-  	return messageDetails
+    let messageDetials;
+    if (trainApiService.isPetFriendly(train.id)) {
+      messageDetails = `${train.name} is coming in ${train.minuets} minuet(s). This train is pet friendly`.
+    } else {
+      messageDetails = `${train.name} is coming in ${train.minuets} minuet(s). This train is not pet friendly`.
+    }
+  return messageDetails
   })
   .do(ui.showTrainDetails)
   .subscribe()
@@ -71,27 +71,27 @@ What if instead of only displaying a final message, the outcome of the condition
 ```javascript
 // show train details at each click
 nextTrainButtonClicks$
-  .map(trainApiServie.getNextTrian);
-  .map((train) => {
-  	let messageDetials;
-  	const isPetFriendly = trainApiService.isPetFriendly(train.id)
-  	if (isPetFriendly) {
-  	  messageDetails = `${train.name} is coming in ${train.minuets} minuet(s). This train is pet friendly.
-  	} else {
-  	  messageDetails = `${train.name} is coming in ${train.minuets} minuet(s). This train is not pet friendly.
-  	}
-  	return {
-  	  petFriendly: isPetFriendly,
-  	  trainDetails: messageDetails,
-  	};
-  })
-  .do((trainMessage) => {
-    ui.showTrainDetails(trainMessage);
-    if (trainMessage.petFriendly) {
-      ui.showPetIcon()
-    }
-  })
-  .subscribe()
+.map(trainApiServie.getNextTrian);
+.map((train) => {
+  let messageDetials;
+  const isPetFriendly = trainApiService.isPetFriendly(train.id)
+  if (isPetFriendly) {
+    messageDetails = `${train.name} is coming in ${train.minuets} minuet(s). This train is pet friendly`.
+  } else {
+    messageDetails = `${train.name} is coming in ${train.minuets} minuet(s). This train is not pet friendly`.
+  }
+  return {
+    petFriendly: isPetFriendly,
+    trainDetails: messageDetails,
+  };
+})
+.do((trainMessage) => {
+  ui.showTrainDetails(trainMessage);
+  if (trainMessage.petFriendly) {
+    ui.showPetIcon()
+  }
+})
+.subscribe()
 
 ```
 At this point it's getting tough to follow what's going on. We are using a conditional statement to build up the train details message. And _another_ conditional statement inside the final `do()` operator to update the UI with the pet icon.  There's also a few new variables we have to keep track of in order to achieve the branching logic:
