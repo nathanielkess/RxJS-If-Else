@@ -1,8 +1,8 @@
-# RxJS-If-Else
+# RxJS, where is the If-Else operator? 
 
 `if/else` statements are a staple for handling conditional actions. It's natural for most developers to reach for the `if/else` statement at the point when a decision needs to be made in code. In the reactive programming paradigm (eg with RxJS) this conditional statement is mysteriously unavailable. How can you code without it? 
 
-The trick is more streams, but more on that later. First let's walk through an example.  Let's say we're writing a transit app. The app calls for a new feature that checks if the next street cars is pet friendly. I'll start with an example in RxJS that walks a thin line between reactive functional programming and imperative programming (the kind full of `if/else` statements). Then we'll clean it up with the "more streams" trick and find out how to do away with if/else statements and why RxJS doesn't offer a dedicated if/else operator (as of RxJS 5) in the first place.
+The trick is more streams, but more on that later. First let's walk through an example where we need to write an RX stream.  Let's say we're writing a transit app. The app calls for a new feature that checks if the next street car is pet friendly. I'll start with an example in RxJS that walks a thin line between reactive functional programming and imperative programming (the kind full of `if/else` statements). Then we'll clean it up with the "more streams" trick and find out how to do away with if/else statements and why RxJS doesn't offer a dedicated if/else operator (as of RxJS 5) in the first place.
 
 ### New feature: Is this train pet friendly?
 As a user of the app, I need to know if the next train is pet friendly.  When I click the "Get Next Train" button, a message with details including pet info should be displayed.
@@ -10,7 +10,7 @@ As a user of the app, I need to know if the next train is pet friendly.  When I 
 
 
 #### TrainApiService
-We'll write the feature against this existing TrainApiService class that has two methods. The first is `getNextTrain()` which returns train details (name, id and remaining minutes until arrival).  And the second being `isPetFriendly()`, which takes a train id and returns true or false.
+We'll write the feature against this existing TrainApiService class that has two methods. The first is `getNextTrain()` which returns train details (name, id and remaining minutes until arrival).  And the second method is `isPetFriendly()`, which takes a train id and returns true or false.
 
 ```typescript
 interface iTrainDetails {
@@ -40,9 +40,9 @@ nextTrainButtonClicks$
   .map((train) => {
     let messageDetials;
     if (trainApiService.isPetFriendly(train.id)) {
-      messageDetails = `${train.name} is coming in ${train.minuets} minuet(s). This train is pet friendly`.
+      messageDetails = `${train.name} is coming in ${train.minutes} minuet(s). This train is pet friendly`.
     } else {
-      messageDetails = `${train.name} is coming in ${train.minuets} minuet(s). This train is not pet friendly`.
+      messageDetails = `${train.name} is coming in ${train.minutes} minuet(s). This train is not pet friendly`.
     }
   return messageDetails
   })
@@ -50,7 +50,7 @@ nextTrainButtonClicks$
   .subscribe()
 
 ```
-It's not terribly difficult to see what's going on here:
+Here's what's happening:
 
 - each click is emitted in a stream
 - each click is mapped to train details of the next train (`.map(trainApiServie.getNextTrain)`)
@@ -94,7 +94,7 @@ nextTrainButtonClicks$
 .subscribe()
 
 ```
-At this point it's getting tough to follow what's going on. We are using a conditional statement to build up the train details message. And _another_ conditional statement inside the final `do()` operator to update the UI with the pet icon.  There's also a few new variables we have to keep track of in order to achieve the branching logic:
+At this point it's getting tough to follow what's going on. We are using a conditional statement to build up the train details message and _another_ conditional statement inside the final `do()` operator to update the UI with the pet icon.  There's also a few new variables we have to keep track of in order to achieve the branching logic:
 
 - `let messageDetials;`
 - `const isPetFriendly = trainApiService.isPetFriendly(train.id);`
@@ -122,7 +122,7 @@ source$
   .do(something);
 ```
 
-But the topic here is `if/else` not just `if`. 
+But the topic here is `if/else`, not just `if`. 
 
 ```javascript
 if (isSomething)  {
@@ -132,15 +132,15 @@ if (isSomething)  {
 }
 ```
 
-We can't branch to the else portion of this condition with the filter operator, but it's okay. Instead, you can break the statement into multiple streams, one for each branch of the condition and then compose them together with a `merge` operator.
+We can't branch to the else portion of this condition with the filter operator, but it's okay. Instead, you can break the statement into multiple streams (one for each branch of the condition) and then compose them together with a `merge` operator.
 
 ```javascript
 const somethings$ = source$
-  .filter(isSomthing)
+  .filter(isSomething)
   .do(something):
 
 const differentThings$ = source$
-  .filter(!isSomthing)
+  .filter(!isSomething)
   .do(aDifferentThing):
 
 // merge them together
@@ -150,7 +150,7 @@ const onlyTheRightThings$ = somethings$
 ```
    
 
-`if` statements, however, don't end there, there's also the `else if` statement. 
+`if` statements, however, don't end there. There's also the `else if` statement. 
 
 ```javascript
 if (isSomething)  {
@@ -162,11 +162,11 @@ if (isSomething)  {
 }
 ```
 
-This essentially translates into more branches. By following that same approach as before in the RxJS way, we can break each branch into it's own stream and merge them all together at the end. 
+This essentially translates into more branches. By following that same approach as before in the RxJS way, we can break each branch into its own stream and merge them all together at the end. 
 
 ```javascript
 const somethings$ = source$
-  .filter(isSomthing)
+  .filter(isSomething)
   .do(something);
 
 const betterThings$ = source$
@@ -174,7 +174,7 @@ const betterThings$ = source$
   .do(betterThings);
 
 const defaultThings$ = source$
-  .filter((val) => !isSomthing(val) && !isBetterThings(val))
+  .filter((val) => !isSomething(val) && !isBetterThings(val))
   .do(defaultThing);
 
 // merge them together
@@ -186,7 +186,7 @@ const onlyTheRightThings$ = somethings$
   .do(correctThings);
 ```
 
-The beauty here is that the final stream is just a composition of the things the developer is after. Compared to the imperative version (`if/else`), this one reads like a natural conversation. I don't need to bother considering the other streams. I can just zero in on what the final stream is composed of and assume the goal based on the verbiage.
+The beauty here is that the final stream is just a composition of the things the developer is after. Compared to the imperative version (`if/else`), this one reads like a natural conversation. You don't need to bother considering the other streams. You can just zero in on what the final stream is composed of and assume the goal based on the verbiage.
 
 "I want `somethings$`, `betterThings$` and `defaultThings$`" 
 
@@ -214,14 +214,14 @@ const nextTrains$ = nextTrainButtonClicks$
 // branch stream of pet friendly trains
 const petFriendlyTrains$ = nextTrains$
   .filter((train) => trainApiService.isPetFriendly(train.id))
-  .map((train => `${train.name} is coming in ${train.minuets} minuet(s). This train is pet friendly.`)
+  .map((train => `${train.name} is coming in ${train.minutes} minuet(s). This train is pet friendly.`)
   .do(ui.showTrainDetails)
   .do(ui.showPetIcon);
   
 // branch stream of non pet friendly trains
 const nonPetFriendlyTrains$ = nextTrains$
   .filter((train) => !trainApiService.isPetFriendly(train.id))
-  .map((train => `${train.name} is coming in ${train.minuets} minuet(s). This train is not pet friendly.`)
+  .map((train => `${train.name} is coming in ${train.minutes} minuet(s). This train is not pet friendly.`)
   .do(ui.showTrainDetails);
 
 // merge then all together  
@@ -233,7 +233,7 @@ Rx.Observable.of('')
   .subscribe();
 
 ```
-Compared to our early attempt at the pet friendly feature, this one should be much more readable. We've built out the branches into single independent streams that are easy to digest. And we used those branch streams to compose our final output:
+Compared to our early attempt at the pet friendly feature, this one is more readable. We've built out the branches into single independent streams that are easy to digest. And we used those branch streams to compose our final output:
 
 "I want `petFriendlyTrains$` and `nonPetFriendlyTrains$`."
 
