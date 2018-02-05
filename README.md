@@ -53,7 +53,7 @@ nextTrainButtonClicks$
 It's not terribly difficult to see what's going on here:
 
 - each click is emitted in a stream
-- each click is mapped to train details of the next trains (`.map(trainApiServie.getNextTrian)`)
+- each click is mapped to train details of the next train (`.map(trainApiServie.getNextTrain)`)
 - the next `.map()` goes into a bit of conditional logic to check if the next train is pet friendly with `if (trainApiService.isPetFriendly(train.id))`.  Depending on the condition, a message is returned with the necessary pet information.
 - the `.do(ui.showTrainDetails)` takes the previous message and updates the UI in the app. 
 
@@ -233,5 +233,7 @@ Rx.Observable.of('')
   .subscribe();
 
 ```
+Compared to our early attempt at the pet friendly feature, this one should be much more readable. We've built out the branches into single independent streams that are easy to digest. And we used those branch streams to compose our final output:
 
+"I want `petFriendlyTrains$` and `nonPetFriendlyTrains$`."
 
